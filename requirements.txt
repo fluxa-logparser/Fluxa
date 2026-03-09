@@ -1,0 +1,10 @@
+regex
+numpy
+pandas
+scipy
+scikit-learn
+tqdm
+nltk
+deap
+openai
+tiktoken
