@@ -3,7 +3,7 @@
 =======
 
 # Fluxa: A Hybrid LLM-Agent Framework for Adaptive Log Parsing
->>>>>>> 5bb2f5d (更新文件结构，新增/删除部分文件)
+
 
 A hybrid log parsing system combining **BulkParse** (fast rule-based parsing) and **DeepParse** (LLM-based parsing) with intelligent routing and template learning capabilities.
 
