@@ -116,45 +116,63 @@ import openai
 openai.api_key = "your-api-key-here"
 ```
 
-### 2.Fluxa (LoRA Adapter Version)
+### 2. Fluxa (LoRA Adapter Version)
 
-The LoRA Adapter version uses a parameter-efficient fine-tuned adapter for the Llama model.  
-Instead of downloading the full fine-tuned model, this version loads a lightweight LoRA adapter
-(`adapter_model.safetensors` + `adapter_config.json`) on top of the base model.
+The LoRA Adapter version uses a LoRA (Low-Rank Adaptation) adapter fine-tuned for log parsing tasks. This version provides better performance and doesn't require OpenAI API keys.
 
-This significantly reduces the model size and makes deployment easier.
+**Download from Hugging Face:**
+Visit: https://huggingface.co/Fluxa-logparser/fluxa/tree/main
 
----
-
-#### Requirements
-
+**Installation:**
 ```bash
-pip install transformers peft accelerate
-
-## API Configuration
-
-### For Fluxa (Prompt Version)
-
-**Method 1: Command Line Argument**
-```bash
-python demo.py -key sk-xxxxxxxxxxxxxxxxxxxxxxxx
+pip install transformers
+pip install peft
+pip install torch
+pip install accelerate
 ```
 
-**Method 2: Environment Variable**
-```bash
-export OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
-python demo.py
-```
-
-**Method 3: In Code**
+**Configuration:**
 ```python
-import openai
-openai.api_key = "your-api-key-here"
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel, PeftConfig
+
+# Load base model
+model_name = "meta-llama/Llama-3.1-13b"  # or your preferred base model
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+base_model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+
+# Load LoRA adapter
+model_path = "Fluxa-logparser/fluxa"  # Downloaded from Hugging Face
+model = PeftModel.from_pretrained(base_model, model_path)
+
+# Use for inference
+def parse_log(log_message):
+    prompt = f"Parse this log message: {log_message}"
+    inputs = tokenizer(prompt, return_tensors="pt")
+    outputs = model.generate(**inputs, max_new_tokens=256)
+    result = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return result
 ```
 
-### For Fluxa (Fine-tuned Version)
+**Alternative: Using with Pipeline**
+```python
+from transformers import pipeline
 
-The fine-tuned version uses llama-cpp-python and automatically downloads the model from Hugging Face on first use. No additional configuration needed.
+# Load model with LoRA adapter
+pipe = pipeline(
+    "text-generation",
+    model="Fluxa-logparser/fluxa",
+    tokenizer=model_name,
+    device_map="auto"
+)
+
+# Parse logs
+result = pipe("Parse this log: <your log message>")
+
 
 ## Project Structure
 
