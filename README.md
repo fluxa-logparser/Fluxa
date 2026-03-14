@@ -116,25 +116,7 @@ import openai
 openai.api_key = "your-api-key-here"
 ```
 
-### 2. Fluxa (Fine-tuned Version)
-
-The Fine-tuned version uses a specially fine-tuned Llama model (Meta-Llama-3.1-13B-Fluxa) optimized for log parsing tasks. This version provides better performance and doesn't require OpenAI API keys.
-
-**Installation:**
-```bash
-pip install llama-cpp-python
-```
-
-**Usage:**
-```python
-from llama_cpp import Llama
-
-llm = Llama.from_pretrained(
-    repo_id="Fluxa-logparser/fluxa",
-    filename="Meta-Llama-3.1-13B-Fluxa.gguf",
-)
-```
-### 3. Fluxa (LoRA Adapter Version)
+### 2.Fluxa (LoRA Adapter Version)
 
 The LoRA Adapter version uses a parameter-efficient fine-tuned adapter for the Llama model.  
 Instead of downloading the full fine-tuned model, this version loads a lightweight LoRA adapter
