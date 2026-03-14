@@ -134,12 +134,20 @@ llm = Llama.from_pretrained(
     filename="Meta-Llama-3.1-13B-Fluxa.gguf",
 )
 ```
+### 3. Fluxa (LoRA Adapter Version)
 
-**Benefits of Fine-tuned Version:**
-- No API key required
-- Optimized specifically for log parsing
-- Better performance on log parsing tasks
-- Can run locally
+The LoRA Adapter version uses a parameter-efficient fine-tuned adapter for the Llama model.  
+Instead of downloading the full fine-tuned model, this version loads a lightweight LoRA adapter
+(`adapter_model.safetensors` + `adapter_config.json`) on top of the base model.
+
+This significantly reduces the model size and makes deployment easier.
+
+---
+
+#### Requirements
+
+```bash
+pip install transformers peft accelerate
 
 ## API Configuration
 
