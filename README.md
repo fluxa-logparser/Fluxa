@@ -109,7 +109,7 @@ The Prompt version uses OpenAI's GPT models with carefully designed prompts for 
 ```bash
 pip install openai
 ```
-
+```
 **Configuration:**
 ```python
 import openai
