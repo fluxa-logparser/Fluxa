@@ -3,7 +3,7 @@
 =======
 
 # Fluxa: A Hybrid LLM-Agent Framework for Adaptive Log Parsing
-
+>>>>>>> 5bb2f5d (更新文件结构，新增/删除部分文件)
 
 A hybrid log parsing system combining **BulkParse** (fast rule-based parsing) and **DeepParse** (LLM-based parsing) with intelligent routing and template learning capabilities.
 
@@ -109,7 +109,7 @@ The Prompt version uses OpenAI's GPT models with carefully designed prompts for 
 ```bash
 pip install openai
 ```
-```
+
 **Configuration:**
 ```python
 import openai
@@ -173,6 +173,91 @@ pipe = pipeline(
 # Parse logs
 result = pipe("Parse this log: <your log message>")
 
+```
+## API Configuration
+
+### For Fluxa (Prompt Version)
+
+**Method 1: Command Line Argument**
+```bash
+python demo.py -key sk-xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Method 2: Environment Variable**
+```bash
+export OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
+python demo.py
+```
+
+**Method 3: In Code**
+```python
+import openai
+openai.api_key = "your-api-key-here"
+```
+
+### For Fluxa (LoRA Adapter Version)
+
+**Step 1: Download LoRA Adapter**
+```bash
+# Using git clone
+git clone https://huggingface.co/Fluxa-logparser/fluxa
+
+# Or download manually from:
+# https://huggingface.co/Fluxa-logparser/fluxa/tree/main
+```
+
+**Step 2: Model Configuration**
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+import torch
+
+# Configuration
+config = {
+    "base_model": "meta-llama/Llama-2-7b-hf",  # Base model
+    "adapter_path": "./fluxa",                   # Path to downloaded adapter
+    "device": "cuda" if torch.cuda.is_available() else "cpu",
+    "max_length": 512,
+    "temperature": 0.1
+}
+
+# Load model
+tokenizer = AutoTokenizer.from_pretrained(config["base_model"])
+base_model = AutoModelForCausalLM.from_pretrained(
+    config["base_model"],
+    torch_dtype=torch.float16 if config["device"] == "cuda" else torch.float32,
+    device_map="auto"
+)
+
+# Load LoRA adapter
+model = PeftModel.from_pretrained(base_model, config["adapter_path"])
+model = model.merge_and_unload()  # Merge adapter for faster inference
+```
+
+**Step 3: Run Inference**
+```python
+def parse_logs(log_messages):
+    """Parse log messages using Fluxa LoRA adapter"""
+    results = []
+    for log_msg in log_messages:
+        prompt = f"Parse the following log message:\n{log_msg}\n\nParsed output:"
+        inputs = tokenizer(prompt, return_tensors="pt").to(config["device"])
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=256,
+            temperature=config["temperature"],
+            do_sample=True
+        )
+        parsed = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        results.append(parsed)
+    return results
+```
+
+**Recommended Settings:**
+- GPU: NVIDIA GPU with 8GB+ VRAM (use CPU with quantization for lower memory)
+- Base Model: Llama-2-7b-hf or Meta-Llama-3.1-8B
+- Adapter: Fluxa-logparser/fluxa (from Hugging Face)
+- Batch Size: 1 for inference, adjust based on GPU memory
 
 ## Project Structure
 
